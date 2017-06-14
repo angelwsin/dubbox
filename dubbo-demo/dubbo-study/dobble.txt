@@ -8,6 +8,8 @@
 
  框架学习在 demo 中的  dubbo.txt
 
+ Extension  中  adaptive 的 选择 可以看 adaptive 目录下
+
 
 dobble 实现 自己的轻量级 aop
 
