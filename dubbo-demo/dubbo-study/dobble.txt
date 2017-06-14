@@ -1,0 +1,227 @@
+
+
+先下载 https://github.com/alibaba/opensesame.git 
+
+
+然后 安装 dubbo
+
+
+ 框架学习在 demo 中的  dubbo.txt
+
+
+dobble 实现 自己的轻量级 aop
+
+Extension
+META-INF/dubbo/internal/+type
+注解 类上
+
+ExtensionLoader  模拟aop
+
+一个spi 有多个 adaptive  根据上下文动态的选择 adaptive 实现类
+
+一个 spi  对应一个 ExtensionLoader   
+ExtensionLoader 下的概念
+
+spi 可以指定默认的adaptive  称 cachedDefaultName
+
+loadExtensionClasses 扩展类 的加载 从下面的文件中加载
+META-INF/dubbo/internal/+type
+加载中 
+若  加载的类上标识 adaptive 缓存 cachedAdaptiveClass 
+若  加载的类存在 构造函数的参数有 type  加载到 包装缓存 中 cachedWrapperClasses    例如 protocol 中的 protocolWrapper 对protocol的包装
+否则  如果 加载的类上标识 Activate 缓存 cachedActivates
+      根据文件中的 key/value 缓存 extensionClasses 
+
+
+createAdaptiveExtensionClass  没有指定 adaptive   动态选择
+ 动态选择的逻辑
+ spi 的方法 必须包含adaptive注解
+ 查找方法的参数 中第一个 是 com.alibaba.dubbo.common.URL类型的参数
+ 若 参数中没有 则 查找 参数的get方法中 是否 有 com.alibaba.dubbo.common.URL 的类型
+
+adaptive 若 没有找到 值 则 使用 spi 的 类名 小写 多个单词 中间使用 .
+
+检测 参数 中 是否包含  hasInvocation  代理调用
+
+
+根据 url 选择的类型 不同 有三种选择  如果没有 选择 spi 的默认值
+
+protocol  url.getProtocol()
+
+hasInvocation   url.getMethodParameter
+
+其他 url.getParameter
+
+
+spi  指定默认值
+根据Adaptive  指定适配类
+如果没有 clazz.getConstructor(type) 检测构造函数 是否有包装类 cachedWrapperClasses
+如果没有 Activate注解 cachedActivates   根据 文件中的key/value 缓存 extensionClasses
+
+动态生成代码 编译 Compiler
+
+根据方法 上的Adaptive注解  动态 adaptive
+
+
+Protocol
+registry 注册服务
+
+Registry
+zookeeper
+
+
+
+ 服务器操作系统为 Ubuntu Server 16.04.1 LTS 64位 ，默认账户为 ubuntu ，初始密码为 Q5pjGTa4rQGXT
+
+
+rpc
+
+
+服务端  客户端  处理请求i/o模型 
+
+监控
+流控 限制调用次数  失败重复调用次数
+路由 (客户端调用调用负载)
+客户端 注册中心 服务端  心跳检测
+
+组件
+订阅组件
+发布组件
+事件
+
+
+注册中心挂掉了怎么办
+
+
+客户端     客户端  订阅组件   订阅 服务 
+          当服务发布怎么通知 订阅者    推/拉  事件机制
+
+
+
+
+注册中心   注册中心 集群之间的信息同步
+           注册中心和服务端 心跳检测
+
+
+
+服务端     发布服务   
+     
+       功能点： 发布组件  发布服务      问题 注册中心挂了怎么办              负载： 优先级 随机  顺序
+                                                                                       
+                         服务是否可用   注册中心和服务端 心跳检测
+	        服务发布的 key
+
+		服务类型  jvm  remote
+
+		方法的类型
+		死等
+		完成通知
+		异步
+
+
+dubbo  url 
+
+double 组件 
+
+启动时的容器组件 Container
+
+ spring 容器  jetty 容器等
+
+ registry  注册中心组件 支持不同的注册中心    多注册中心
+   
+ dubbo=com.alibaba.dubbo.registry.dubbo.DubboRegistryFactory
+multicast=com.alibaba.dubbo.registry.multicast.MulticastRegistryFactory  多播
+zookeeper=com.alibaba.dubbo.registry.zookeeper.ZookeeperRegistryFactory
+redis=com.alibaba.dubbo.registry.redis.RedisRegistryFactory
+
+registry registry=zookeeper
+
+ 协议类型 protocol       多协议
+
+registry=com.alibaba.dubbo.registry.integration.RegistryProtocol
+filter=com.alibaba.dubbo.rpc.protocol.ProtocolFilterWrapper
+listener=com.alibaba.dubbo.rpc.protocol.ProtocolListenerWrapper
+mock=com.alibaba.dubbo.rpc.support.MockProtocol
+injvm=com.alibaba.dubbo.rpc.protocol.injvm.InjvmProtocol
+dubbo=com.alibaba.dubbo.rpc.protocol.dubbo.DubboProtocol
+rmi=com.alibaba.dubbo.rpc.protocol.rmi.RmiProtocol
+hessian=com.alibaba.dubbo.rpc.protocol.hessian.HessianProtocol
+com.alibaba.dubbo.rpc.protocol.http.HttpProtocol
+com.alibaba.dubbo.rpc.protocol.webservice.WebServiceProtocol
+thrift=com.alibaba.dubbo.rpc.protocol.thrift.ThriftProtocol
+memcached=memcom.alibaba.dubbo.rpc.protocol.memcached.MemcachedProtocol
+redis=com.alibaba.dubbo.rpc.protocol.redis.RedisProtocol
+
+
+{generic=false, timestamp=1497240268842, dubbo=2.0.0, application=demo-provider, side=provider, owner=william, pid=4156, interface=com.alibaba.dubbo.demo.DemoService, anyhost=true, loadbalance=roundrobin}
+dubbo://192.168.2.221:20880/com.alibaba.dubbo.demo.DemoService?anyhost=true&application=demo-provider&dubbo=2.0.0&generic=false&interface=com.alibaba.dubbo.demo.DemoService&loadbalance=roundrobin&methods=sayHello&owner=william&pid=4156&side=provider&timestamp=1497240268842
+
+
+monitor
+
+
+service 
+
+ 创建代理对象 Invoker  创建代理对象策略  
+ stub=com.alibaba.dubbo.rpc.proxy.wrapper.StubProxyFactoryWrapper
+jdk=com.alibaba.dubbo.rpc.proxy.jdk.JdkProxyFactory
+javassist=com.alibaba.dubbo.rpc.proxy.javassist.JavassistProxyFactory
+
+
+dubbo://192.168.2.221:20880/com.alibaba.dubbo.demo.DemoService?anyhost=true&application=demo-provider&dubbo=2.0.0&generic=false&interface=com.alibaba.dubbo.demo.DemoService&loadbalance=roundrobin&methods=sayHello&owner=william&pid=4156&side=provider&timestamp=1497240268842
+
+
+
+
+
+header=com.alibaba.dubbo.remoting.exchange.support.header.HeaderExchanger
+
+数据传输层
+
+netty=com.alibaba.dubbo.remoting.transport.netty.NettyTransporter
+mina=com.alibaba.dubbo.remoting.transport.mina.MinaTransporter
+grizzly=com.alibaba.dubbo.remoting.transport.grizzly.GrizzlyTransporter
+
+
+
+ServiceBean  的层次结构
+           
+	  application 
+
+	  Module 
+
+         ServiceBean  容器层  Container    ReferenceBean
+	 
+	 config       配置层    xml 等
+
+	 proxy        代理层  proxyFactory Invoker
+
+	 Registry  注册中心层 RegistryFactory
+
+	 Cluster   集群层   涉及路由 负载均衡  Invoker组件
+
+	 Monitor  监控层   调用 Filter 链中
+
+         protocol  协议层  Protocol
+	 Exchangers  数据交换层
+	 Transporter  数据传输层
+
+	 servic 发布模式  injvm  remote   进程jvm
+
+	 路由策略
+	    条件   动态脚本
+
+	    负载均衡
+	      随机  轮询(加权重)  一致hash  
+	 
+
+	
+
+	
+
+
+	 
+
+
+
+
